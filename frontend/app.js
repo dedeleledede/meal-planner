@@ -3,7 +3,7 @@
  * Local: "http://localhost:8080"
  * Deployed: "https://your-backend.onrender.com"
  */
-const API_BASE = "http://127.0.0.1:8080";
+const API_BASE = "https://meal-planner-xrtw.onrender.com";
 
 const state = {
   token: localStorage.getItem("mp_token") || null,

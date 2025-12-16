@@ -1,0 +1,476 @@
+/* =========================================================
+   Meal Planner — Frutiger Aero (keep OLD palette) + bright buttons
+   - Keeps your original --bg-mid/--bg-deep colors
+   - Fixes overflow (override + calendar + template)
+   - No horizontal scroll on Template
+   - Equal-height list cards (Pratos/Ingredientes)
+   - Aero-styled listboxes (select size/multiple)
+   - Shopping "Gerar" aligned + spacing
+   ========================================================= */
+
+:root{
+  /* --- OLD palette (kept) --- */
+  --bg-deep: #084a06;
+  --bg-mid:  #9ec200;
+
+  --text:  #2e2300;
+  --muted: rgba(128, 128, 128, 0.897);
+
+  /* strokes + glass */
+  --stroke: rgba(255,255,255,0.26);
+  --stroke-soft: rgba(255,255,255,0.14);
+  --glass: rgba(246, 255, 161, 0.14);
+
+  /* accents */
+  --accent:  #e5ff00;
+  --accent2: #929408b0;
+
+  --danger: #ff0000;
+
+  --shadow-soft: 0 10px 26px rgba(0,0,0,0.28);
+  --shadow: 0 18px 55px rgba(0,0,0,0.34);
+
+  /* convenience */
+  --border: rgba(255,255,255,0.16);
+}
+
+*{ box-sizing:border-box; }
+
+html, body{ height: 100%; }
+
+html{
+  min-height: 100%;
+
+  /* Win7-ish “sky + bloom” */
+  background:
+    radial-gradient(900px 520px at 70% 15%, rgba(255,255,255,0.38), transparent 55%),
+    radial-gradient(1100px 700px at 20% 95%, rgba(55,198,255,0.18), transparent 60%),
+    linear-gradient(135deg, var(--bg-deep) 0%, var(--bg-mid) 42%, var(--bg-deep) 100%);
+  background-attachment: fixed;
+}
+
+/* Global “noise” + vignette (CSS-only) */
+html::before{
+  content:"";
+  position: fixed;
+  inset: 0;
+  pointer-events:none;
+  z-index: 9999;
+  background-image:
+    radial-gradient(rgba(255,255,255,0.09) 1px, transparent 0),
+    radial-gradient(rgba(0,0,0,0.12) 1px, transparent 0);
+  background-size: 3px 3px, 4px 4px;
+  background-position: 0 0, 1px 1px;
+  opacity: 0.05;
+  mix-blend-mode: overlay;
+}
+
+html::after{
+  content:"";
+  position: fixed;
+  inset: 0;
+  pointer-events:none;
+  z-index: 9998;
+  background: radial-gradient(1200px 800px at 50% 20%,
+    transparent 55%,
+    rgba(0,0,0,0.25) 100%);
+  opacity: 0.55;
+}
+
+body{
+  min-height: 100vh;
+  margin: 0;
+  display:flex;
+  flex-direction:column;
+
+  background: transparent;
+  color: var(--text);
+  font-family: "Segoe UI", system-ui, -apple-system, Roboto, Arial, sans-serif;
+  text-shadow: 0 1px 0 rgba(0,0,0,0.25);
+  overflow-x: hidden;
+}
+
+/* Prevent flex “shrinking” of header/nav/footer */
+.topbar, .tabs, .footer{ flex: 0 0 auto; }
+.wrap{ flex: 1 0 auto; }
+
+/* ===== Top bar ===== */
+.topbar{
+  min-height: 72px;
+  padding: 14px 18px;
+  display:flex;
+  justify-content:space-between;
+  gap:16px;
+  align-items:center;
+
+  background: linear-gradient(180deg, rgba(255,255,255,0.30), rgba(255,255,255,0.10));
+  border-bottom: 1px solid var(--stroke-soft);
+  box-shadow: 0 6px 22px rgba(0,0,0,0.25);
+
+  backdrop-filter: blur(18px) saturate(150%);
+  -webkit-backdrop-filter: blur(18px) saturate(150%);
+  position: relative;
+  overflow: hidden;
+}
+
+.brand{ display:flex; gap:12px; align-items:center; }
+
+.logo{
+  width: 34px;
+  height: 34px;
+  object-fit: contain;
+  display:block;
+
+  padding: 4px;
+  border-radius: 10px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.32), rgba(255,255,255,0.10));
+  border: 1px solid var(--stroke);
+  box-shadow:
+    0 8px 18px rgba(0,0,0,0.25),
+    inset 0 1px 0 rgba(255,255,255,0.35);
+}
+
+.title{ font-size: 18px; font-weight: 800; letter-spacing: 0.2px; }
+.subtitle{ font-size: 12px; color: var(--muted); margin-top: 1px; }
+
+.auth{ display:flex; gap:10px; align-items:center; justify-content:flex-end; flex-wrap: wrap; }
+.pill{
+  padding: 6px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,0.18);
+  background: linear-gradient(180deg, rgba(255,255,255,0.20), rgba(255,255,255,0.06));
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.22);
+  color: var(--muted);
+  font-size: 12px;
+}
+
+/* ===== Tabs ===== */
+.tabs{
+  min-height: 52px;
+  padding: 10px 18px;
+  display:flex;
+  gap: 8px;
+  flex-wrap: wrap;
+
+  background: linear-gradient(180deg, rgba(255,255,255,0.12), rgba(255,255,255,0.04));
+  border-bottom: 1px solid var(--stroke-soft);
+  box-shadow: 0 6px 18px rgba(0,0,0,0.18);
+
+  position: sticky;
+  top: 0;
+  z-index: 10;
+
+  backdrop-filter: blur(14px) saturate(140%);
+  -webkit-backdrop-filter: blur(14px) saturate(140%);
+  overflow: hidden;
+}
+
+.tab{
+  border: 1px solid rgba(255,255,255,0.18);
+  border-radius: 12px;
+  padding: 8px 12px;
+  cursor:pointer;
+
+  background: linear-gradient(180deg, rgba(255,255,255,0.22), rgba(255,255,255,0.08));
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.25), 0 6px 14px rgba(0,0,0,0.18);
+  color: var(--text);
+
+  position: relative;
+  overflow: hidden;
+}
+
+.tab.active{
+  border-color: rgba(229,255,0,0.55);
+  box-shadow:
+    0 10px 22px rgba(0,0,0,0.22),
+    0 0 0 2px rgba(229,255,0,0.12),
+    inset 0 1px 0 rgba(255,255,255,0.28);
+}
+
+/* ===== Layout ===== */
+.wrap{
+  padding: 18px;
+  max-width: 1320px;
+  margin: 0 auto;
+}
+
+.view.hidden{ display:none; }
+
+.footer{
+  padding: 14px 18px;
+  text-align:center;
+  font-size: 12px;
+  color: var(--muted);
+
+  border-top: 1px solid var(--stroke-soft);
+  background: linear-gradient(180deg, rgba(255,255,255,0.10), rgba(255,255,255,0.04));
+  backdrop-filter: blur(14px) saturate(140%);
+  -webkit-backdrop-filter: blur(14px) saturate(140%);
+  position: relative;
+  overflow: hidden;
+}
+
+/* ===== Glass shine overlay for surfaces ===== */
+.topbar::before, .tabs::before, .card::before, .tab::before, .footer::before, button::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+
+  background:
+    radial-gradient(120% 70% at 30% 0%,
+      rgba(255,255,255,0.40) 0%,
+      rgba(255,255,255,0.14) 35%,
+      transparent 60%),
+    linear-gradient(180deg,
+      rgba(255,255,255,0.22) 0%,
+      transparent 45%);
+
+  opacity: 0.70;
+}
+.tab::before{ opacity: 0.55; }
+button::before{ opacity: 0.45; }
+
+/* ===== Cards ===== */
+.card{
+  border-radius: 16px;
+  border: 1px solid rgba(255,255,255,0.18);
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.18), rgba(255,255,255,0.08));
+  box-shadow: var(--shadow);
+  padding: 14px;
+  margin-bottom: 14px;
+
+  position: relative;
+  overflow: hidden;
+}
+
+.card-title{
+  font-weight: 800;
+  margin: -14px -14px 10px;
+  padding: 10px 12px;
+  border-bottom: 1px solid rgba(255,255,255,0.18);
+  background: linear-gradient(180deg, rgba(255,255,255,0.30), rgba(255,255,255,0.10));
+  border-top-left-radius: 16px;
+  border-top-right-radius: 16px;
+
+  position: relative;
+  overflow: hidden;
+}
+
+.card-title::after{
+  content:"";
+  position:absolute;
+  left:0; right:0; top:0;
+  height: 55%;
+  background: linear-gradient(180deg, rgba(255,255,255,0.25), transparent);
+  pointer-events:none;
+}
+
+.hint{ font-size: 12px; color: var(--muted); margin-top: 8px; }
+
+.row{ display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
+.grid-2{ display:grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap:10px; }
+
+/* IMPORTANT: prevents overflow inside grid/flex */
+label{
+  display:grid;
+  gap:6px;
+  font-size: 12px;
+  color: var(--muted);
+  min-width: 0;
+}
+label input, label select, label textarea{
+  font-size: 14px;
+  min-width: 0;
+}
+
+/* ===== Inputs / Buttons (BRIGHT, not dark) ===== */
+input, select, textarea, button{
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0.18);
+  padding: 8px 10px;
+  color: var(--text);
+
+  background: linear-gradient(180deg, rgba(255,255,255,0.24), rgba(255,255,255,0.10));
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.26),
+    0 8px 18px rgba(0,0,0,0.18);
+  outline: none;
+
+  position: relative;
+  overflow: hidden;
+}
+
+input::placeholder, textarea::placeholder{ color: rgba(46,35,0,0.55); }
+
+input:focus, select:focus, textarea:focus{
+  border-color: rgba(229,255,0,0.65);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.26),
+    0 0 0 3px rgba(229,255,0,0.18),
+    0 10px 22px rgba(0,0,0,0.22);
+}
+
+textarea{ min-height:80px; width:100%; resize: vertical; }
+
+button{
+  cursor:pointer;
+  transition: transform .08s ease, filter .12s ease, border-color .12s ease;
+}
+
+button:hover{
+  filter: brightness(1.05);
+  transform: translateY(-1px);
+  border-color: rgba(229,255,0,0.55);
+}
+
+button:active{
+  transform: translateY(1px);
+  filter: brightness(0.98);
+  box-shadow:
+    0 8px 16px rgba(0,0,0,0.22),
+    inset 0 2px 6px rgba(0,0,0,0.18);
+}
+
+button.primary{
+  border-color: rgba(229,255,0,0.55);
+  background: linear-gradient(180deg, rgba(255,255,255,0.30) 0%, rgba(229,255,0,0.18) 55%, rgba(0,0,0,0.04) 100%);
+}
+
+button.ghost{
+  background: linear-gradient(180deg, rgba(255,255,255,0.18) 0%, rgba(255,255,255,0.06) 55%, rgba(0,0,0,0.03) 100%);
+}
+
+button.danger{
+  border-color: rgba(255,0,0,0.45);
+  background: linear-gradient(180deg, rgba(255,190,190,0.26) 0%, rgba(255,0,0,0.10) 70%);
+}
+
+/* Aero-style listboxes (select with size/multiple) */
+select[size], select[multiple]{
+  background:
+    radial-gradient(140% 80% at 30% 0%, rgba(255,255,255,0.24) 0%, rgba(255,255,255,0.10) 35%, transparent 60%),
+    linear-gradient(180deg, rgba(255,255,255,0.14), rgba(0,0,0,0.05));
+  box-shadow:
+    0 14px 28px rgba(0,0,0,0.20),
+    inset 0 1px 0 rgba(255,255,255,0.20),
+    inset 0 -1px 0 rgba(0,0,0,0.12);
+  border-color: rgba(255,255,255,0.18);
+  padding: 10px;
+}
+
+/* ===== Fix: Pratos / Ingredientes — equal height list cards ===== */
+#view-dishes > .row,
+#view-ingredients > .row{
+  align-items: stretch;
+}
+
+#view-dishes > .row > .card:last-child,
+#view-ingredients > .row > .card:last-child{
+  display:flex;
+  flex-direction:column;
+}
+
+#dishList, #ingList{
+  width: 100%;
+  flex: 1;
+  min-height: 0;
+}
+
+/* ===== Fix: Override de dia overflow ===== */
+#view-calendar .grid-2 select{
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ===== Tables ===== */
+#calendarGrid{ overflow-x:auto; }
+#templateGrid{ overflow-x:hidden; } /* no horizontal scroll on template */
+
+table{
+  width:100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  min-width: 860px; /* calendar default */
+  overflow:hidden;
+  border-radius: 16px;
+  box-shadow: 0 14px 35px rgba(0,0,0,0.22);
+}
+
+th, td{
+  border: 1px solid rgba(255,255,255,0.16);
+  vertical-align: top;
+  padding: 9px;
+  background: rgba(255,255,255,0.10);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.18),
+    inset 0 -1px 0 rgba(0,0,0,0.10);
+}
+
+th{
+  background: linear-gradient(180deg, rgba(255,255,255,0.26), rgba(255,255,255,0.10));
+  text-align:left;
+  position: relative;
+  overflow:hidden;
+}
+
+th::after{
+  content:"";
+  position:absolute;
+  left:0; right:0; top:0;
+  height: 40%;
+  background: linear-gradient(180deg, rgba(255,255,255,0.22), transparent);
+  pointer-events:none;
+}
+
+tbody td:hover{
+  background: rgba(229,255,0,0.10);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.18),
+    inset 0 0 0 1px rgba(229,255,0,0.18);
+}
+
+.cell-date{ font-size: 12px; color: var(--muted); margin-bottom: 6px; }
+.meal{ margin-bottom: 6px; font-size: 13px; overflow-wrap: anywhere; word-break: break-word; }
+.meal b{ color:#ffffff; }
+.small{ font-size: 12px; color: var(--muted); overflow-wrap: anywhere; word-break: break-word; }
+
+/* Calendar: fixed layout avoids “one long word” expanding columns */
+#calendarGrid table{ table-layout: fixed; }
+
+/* Template: fixed layout + no min-width (prevents horizontal scroll) */
+#templateGrid table{
+  table-layout: fixed;
+  min-width: 0;
+  width: 100%;
+}
+#templateGrid th, #templateGrid td{ width: 14.285%; }
+#templateGrid td{
+  height: 260px;    /* bigger day cell */
+  overflow: hidden;
+}
+#templateGrid select{
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  font-size: 13px;
+  padding: 6px 8px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ===== Shopping: align Generate button + spacing ===== */
+#view-shopping .card > .row{
+  align-items: flex-end;
+  margin-bottom: 14px;
+}
+#shoppingOut{ overflow-x:auto; }
+
+/* ===== Minor helpers ===== */
+#dishList, #ingList{ padding: 13px; }

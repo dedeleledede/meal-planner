@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Meal Planner</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <img class="logo" src="assets/logo.png" alt="Meal Planner logo">
+      <div>
+        <div class="title">Meal Planner</div>
+        <div class="subtitle">Template de 28 dias > calendário e lista de compras</div>
+      </div>
+    </div>
+
+    <div class="auth">
+      <input id="password" type="password" placeholder="Senha" />
+      <button id="loginBtn">Login</button>
+      <button id="logoutBtn" class="ghost">Logout</button>
+      <span id="authState" class="pill">Não Logado</span>
+    </div>
+  </header>
+
+  <nav class="tabs">
+    <button data-view="calendar" class="tab active">Calendário</button>
+    <button data-view="template" class="tab">Template 7x4</button>
+    <button data-view="dishes" class="tab">Pratos</button>
+    <button data-view="ingredients" class="tab">Ingredientes</button>
+    <button data-view="shopping" class="tab">Compras</button>
+  </nav>
+
+  <main class="wrap">
+    <section id="view-calendar" class="view">
+      <div class="row">
+        <div class="card">
+          <div class="card-title">Mês</div>
+          <div class="row">
+            <select id="year"></select>
+            <select id="month"></select>
+            <button id="loadCalendar">Carregar</button>
+          </div>
+          <div class="hint">Calendário auto-completado a partir do template de 28 dias. Use overrides editando refeições em uma data.</div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">Override de dia (opicional)</div>
+          <div class="row">
+            <input id="overrideDate" type="date" />
+            <button id="loadOverride" class="ghost">Carregar</button>
+            <button id="clearOverride" class="ghost danger">Limpar</button>
+          </div>
+          <div class="grid-2">
+            <label>Café <select id="ovrBreakfast"></select></label>
+            <label>Almoço <select id="ovrLunch"></select></label>
+            <label>Lanche <select id="ovrSnack"></select></label>
+            <label>Jantar <select id="ovrDinner"></select></label>
+          </div>
+          <button id="saveOverride" class="primary" style="margin-top: 20px;">Salvar override</button>
+          <div class="hint">Login Necessário.</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title" id="calendarTitle">Calendário</div>
+        <div id="calendarGrid"></div>
+      </div>
+    </section>
+
+    <section id="view-template" class="view hidden">
+      <div class="card">
+        <div class="card-title">Template 7x8</div>
+        <div id="templateGrid"></div>
+        <button id="saveTemplate" class="primary">Salvar template</button>
+        <div class="hint">Login Necessário.</div>
+      </div>
+    </section>
+
+    <section id="view-dishes" class="view hidden">
+      <div class="row">
+        <div class="card">
+          <div class="card-title">Adicionar / Editar prato</div>
+          <label>Nome <input id="dishName" placeholder="Frango grelhado" /></label>
+          <label>Notas <textarea id="dishNotes" placeholder="Opicional"></textarea></label>
+          <div class="row" style="margin-top: 20px;">
+            <button id="createDish" class="primary">Criar</button>
+            <button id="updateDish" class="ghost">Atualizar Selecionado</button>
+            <button id="deleteDish" class="ghost danger">Excluir Selecionado</button>
+          </div>
+          <div class="hint">Login Necessário.</div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">Pratos</div>
+          <select id="dishList" size="11"></select>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Ingredientes do prato</div>
+        <div class="row">
+          <select id="diIngredient"></select>
+          <input id="diAmount" type="number" step="0.01" placeholder="Quantidade" />
+          <input id="diUnit" placeholder="Unidade (opicional)" />
+          <button id="addDishIngredient" class="ghost">Adicionar</button>
+        </div>
+        <div id="dishIngredients" style="margin-top: 20px;"></div>
+        <button id="saveDishIngredients" class="primary">Salvar ingredientes do prato</button>
+        <div class="hint">Login Necessário.</div>
+      </div>
+    </section>
+
+    <section id="view-ingredients" class="view hidden">
+      <div class="row">
+        <div class="card">
+          <div class="card-title">Adicionar / Editar ingrediente</div>
+          <label>Nome <input id="ingName" placeholder="Arroz" /></label>
+          <div class="grid-2">
+            <label>Unidade <input id="ingUnit" placeholder="kg, g, und" /></label>
+            <label>Preço unitário <input id="ingPrice" type="number" step="0.01" placeholder="8.50" /></label>
+          </div>
+          <label>Moeda <input id="ingCurrency" value="BRL" /></label>
+          <div class="row" style="margin-top: 20px;">
+            <button id="createIng" class="primary">Criar</button>
+            <button id="updateIng" class="ghost">Atualizar Selecionado</button>
+            <button id="deleteIng" class="ghost danger">Excluir Selecionado</button>
+          </div>
+          <div class="hint">Login Necessário.</div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">Ingredientes</div>
+          <select id="ingList" size="11" style="padding: 13px"></select>
+        </div>
+      </div>
+    </section>
+
+    <section id="view-shopping" class="view hidden">
+      <div class="card">
+        <div class="card-title">Lista de Compras</div>
+        <div class="row">
+          <label>Começo <input id="shopStart" type="date" /></label>
+          <label>Fim <input id="shopEnd" type="date" /></label>
+          <button id="loadShopping">Gerar</button>
+        </div>
+        <div id="shoppingOut"></div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="footer">
+    <span>oi tudo bem </span>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>

@@ -21,6 +21,13 @@ Base.metadata.create_all(bind=engine)
 APP_NAME = "MealPlanner (28-day cycle)"
 app = FastAPI(title=APP_NAME)
 
+# --- HELPERS ---
+def cycle_index_for_date(day: dt.date) -> int:
+    # Python weekday(): Segunda(0) ... Domingo(6)
+    first = dt.date(day.year, day.month, 1)
+    offset = (first.weekday() + 1) % 7   # Domingo=0 ... Sábado=6
+    return ((offset + (day.day - 1)) % 28) + 1
+
 # --- CORS ---
 origins = os.getenv("ALLOWED_ORIGINS", "*").split(",")
 origins = [o.strip() for o in origins if o.strip()]
@@ -295,7 +302,7 @@ def get_calendar(year: int, month: int, db: Session = Depends(get_db)):
             if ovr:
                 meals = _meals_from_ids(ovr.breakfast_dish_id, ovr.lunch_dish_id, ovr.snack_dish_id, ovr.dinner_dish_id, dishes)
             else:
-                idx = ((day.day - 1) % 28) + 1
+                idx = cycle_index_for_date(day) 
                 cyc = db.query(models.CycleDay).filter(models.CycleDay.day_index == idx).first()
                 meals = _meals_from_ids(cyc.breakfast_dish_id, cyc.lunch_dish_id, cyc.snack_dish_id, cyc.dinner_dish_id, dishes)
 
@@ -366,7 +373,7 @@ def shopping(start: str, end: str, db: Session = Depends(get_db)):
         if ovr:
             ids = [ovr.breakfast_dish_id, ovr.lunch_dish_id, ovr.snack_dish_id, ovr.dinner_dish_id]
         else:
-            idx = ((day.day - 1) % 28) + 1
+            idx = cycle_index_for_date(day)
             c = cycle[idx]
             ids = [c.breakfast_dish_id, c.lunch_dish_id, c.snack_dish_id, c.dinner_dish_id]
         used_dish_ids.extend([i for i in ids if i])

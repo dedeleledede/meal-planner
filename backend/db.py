@@ -6,6 +6,9 @@ from sqlalchemy.orm import sessionmaker, declarative_base
 
 DB_URL = os.getenv("DATABASE_URL", "sqlite:///./data.db")
 
+if DB_URL.startswith("postgres://"):
+    DB_URL = DB_URL.replace("postgres://", "postgresql+psycopg://", 1)
+
 connect_args = {}
 if DB_URL.startswith("sqlite"):
     connect_args = {"check_same_thread": False}
